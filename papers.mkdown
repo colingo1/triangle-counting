@@ -1,0 +1,11 @@
+This file lists the papers we need for this project:
+
+* https://arxiv.org/pdf/1202.5230.pdf  "Triadic Measures on Graphs:  The Power of Wedge Sampling"
+
+* http://delivery.acm.org/10.1145/1560000/1557111/p837-tsourakakis.pdf?ip=129.161.87.35&id=1557111&acc=ACTIVE%20SERVICE&key=7777116298C9657D%2EAF047EA360787914%2E4D4702B0C3E38B35%2E4D4702B0C3E38B35&__acm__=1572562575_0a9b66c59a1280eaf1786f3145b260ad "DOULION: Counting Triangles in Massive Graphs with a Coin"
+
+* https://arxiv.org/pdf/1212.2264.pdf "A space efficient streaming algorithm for estimating transitivity and triangle counts using the birthday paradox" 
+
+* https://pdfs.semanticscholar.org/2471/6ee2bf34934e8eb70a7aca4ffa38b544ca81.pdf "Counting Triangles in Large Graphs using Randomized Matrix Trace Estimation"
+
+
