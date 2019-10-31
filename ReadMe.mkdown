@@ -1,0 +1,64 @@
+# Language and Environment
+
+Languages:
+
+Python >3.5
+Scala ?
+
+Tools and Packages:
+
+* networkx 2.4 https://networkx.github.io/ (Python 3.5, 3.6, 3.7)
+
+* Graphx http://spark.apache.org/graphx/ (Spark 2.4.4, API: Scala (doc: http://spark.apache.org/docs/latest/api/scala/index.html#org.apache.spark.package) )
+
+
+# Baselines
+
+1. node/edge iterator
+
+2. wedge sampling
+
+3. "Counting Triangles in Large Graphs using Randomized Matrix Trace Estimation"
+
+4. "A space efficient streaming algorithm for estimating transitivity and triangle counts using the birthday paradox" 
+
+5. ...
+
+# Papers
+
+This section lists the papers we need for this project:
+
+* https://arxiv.org/pdf/1202.5230.pdf  "Triadic Measures on Graphs:  The Power of Wedge Sampling"
+
+* https://dl.acm.org/citation.cfm?id=1557111 "DOULION: Counting Triangles in Massive Graphs with a Coin"
+
+* https://arxiv.org/pdf/1212.2264.pdf "A space efficient streaming algorithm for estimating transitivity and triangle counts using the birthday paradox" 
+
+* https://pdfs.semanticscholar.org/2471/6ee2bf34934e8eb70a7aca4ffa38b544ca81.pdf "Counting Triangles in Large Graphs using Randomized Matrix Trace Estimation"
+
+# schedule
+
+Project page: https://www.cs.rpi.edu/~gittea/teaching/fall2019/project.html
+
+week1 80% code (linear + Spark)
+
+week2 on small dataset
+
+week3 on large dataset
+
+---
+
+*DEADLINE*
+
+(send the email after the previous meeting, Nov. 14th)
+- Nov. 19th discussion (Tue. 12-2 or 4-5)
+
+ 
+
+
+
+
+ 
+
+
+
