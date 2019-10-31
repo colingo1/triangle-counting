@@ -36,7 +36,7 @@ This section lists the papers we need for this project:
 
 * https://pdfs.semanticscholar.org/2471/6ee2bf34934e8eb70a7aca4ffa38b544ca81.pdf "Counting Triangles in Large Graphs using Randomized Matrix Trace Estimation"
 
-# schedule
+# Schedule
 
 Project page: https://www.cs.rpi.edu/~gittea/teaching/fall2019/project.html
 
