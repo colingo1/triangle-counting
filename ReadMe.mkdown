@@ -74,6 +74,7 @@ week3 on large dataset
 * Birthday Paradox implementation, Python (Sola)
 * Trace Estimation implementation, Python (Colin)
 * Wedge Sampling, Python (Rufeng)
+* Test on 3-4 small datasets (...pending...)
  
 
 
