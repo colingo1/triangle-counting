@@ -34,8 +34,11 @@ This section lists the papers we need for this project:
 
 ## wedge sampling
 
- * https://arxiv.org/pdf/1202.5230.pdf  "Triadic Measures on Graphs:  The Power of Wedge Sampling": Algorithm 4, set d = 1
- * https://onlinelibrary.wiley.com/doi/pdf/10.1002/sam.11224 "Wedge Sampling for Computing Clustering Coefficients and Triangle Countson Large Graphs" : Algorithm 4
+ * https://arxiv.org/pdf/1202.5230.pdf  "Triadic Measures on Graphs:  The Power of Wedge Sampling"
+   
+   https://onlinelibrary.wiley.com/doi/pdf/10.1002/sam.11224 "Wedge Sampling for Computing Clustering Coefficients and Triangle Countson Large Graphs"
+   
+   Algorithm 4, set d = 1
  
 ## Birthday Paradox
 
