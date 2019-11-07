@@ -71,7 +71,9 @@ week3 on large dataset
 
 * On Facebook, get error bar and etc. for multiple trials (Manqing)
 * Work on Spark-Graphx parallelization (Colin, Manqing)
-* 
+* Birthday Paradox implementation, Python (Sola)
+* Trace Estimation implementation, Python (Colin)
+* Wedge Sampling, Python (Rufeng)
  
 
 
