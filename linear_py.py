@@ -107,7 +107,7 @@ def analysis(res, ground_truth):
 if __name__ == "__main__":
 
 	# setting
-	G = nx.read_edgelist("facebook_combined.txt", delimiter = ' ', data = (('w', int),))
+	G = nx.read_edgelist("facebook_combined.txt")
 	p_l = [0.1, 0.3, 0.5, 0.7, 1]
 	res = []
 
