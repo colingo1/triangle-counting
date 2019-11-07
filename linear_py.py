@@ -3,6 +3,7 @@ import numpy as np
 import random
 import matplotlib.pyplot as plt
 import time
+import math
 
 
 class DOULION:
@@ -54,6 +55,8 @@ class DOULION:
 
 		if alg == "node_iter":
 			cnt = self.node_iter()
+		elif alg == "trace_est":
+			cnt = self.trace_est()
 		elif alg == "":
 			pass
 
@@ -69,6 +72,27 @@ class DOULION:
 		cnt_total = sum(tri_dic.values()) / 3
 
 		return cnt_total
+
+	def trace_est(self):
+		gamma = 3
+		# For collaboration/citations graphs γ = 1 − 2
+		#seems adequate, for social networks γ = 3 and for large
+		#web graphs/communications networks γ = 4.
+		# - section 6.2 (https://pdfs.semanticscholar.org/2471/6ee2bf34934e8eb70a7aca4ffa38b544ca81.pdf)
+		adjacency_matrix = nx.to_numpy_matrix(G)
+		n = len(adjacency_matrix)
+		M = math.ceil(gamma * (np.log(n) ** 2))
+		T = np.empty(M)
+		for i in range(M):
+			x = np.random.rand(n)
+			y = np.matmul(x,adjacency_matrix)
+			Ti = np.matmul(np.matmul(y,adjacency_matrix),y.transpose())
+			T[i] = float(Ti)/6
+		return np.sum(T)/M
+
+
+
+
 
 
 def analysis(res, ground_truth):
