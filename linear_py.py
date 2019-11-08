@@ -149,8 +149,6 @@ class DOULION:
 				self.edge_res[i] = et
 				updated = True
 
-
-
 		if updated:
 			# update tot wedges and get number of wedges involving et
 			self.N = self.birthday_update_tot_wedges(et, removed_edges)
