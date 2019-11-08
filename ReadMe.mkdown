@@ -28,13 +28,30 @@ Tools and Packages:
 
 This section lists the papers we need for this project:
 
-* https://arxiv.org/pdf/1202.5230.pdf  "Triadic Measures on Graphs:  The Power of Wedge Sampling"
+## DOULIN
 
 * https://dl.acm.org/citation.cfm?id=1557111 "DOULION: Counting Triangles in Massive Graphs with a Coin"
 
-* https://arxiv.org/pdf/1212.2264.pdf "A space efficient streaming algorithm for estimating transitivity and triangle counts using the birthday paradox" 
+## wedge sampling
+
+ * https://arxiv.org/pdf/1202.5230.pdf  "Triadic Measures on Graphs:  The Power of Wedge Sampling"
+   
+   https://onlinelibrary.wiley.com/doi/pdf/10.1002/sam.11224 "Wedge Sampling for Computing Clustering Coefficients and Triangle Countson Large Graphs"
+   
+   Algorithm 4, set d = 1
+ 
+## Trace Estimation
 
 * https://pdfs.semanticscholar.org/2471/6ee2bf34934e8eb70a7aca4ffa38b544ca81.pdf "Counting Triangles in Large Graphs using Randomized Matrix Trace Estimation"
+
+## Eigenvalue 
+
+* http://www.math.cmu.edu/~ctsourak/asonam_book.pdf "Spectral Counting of Triangles via Element-Wise Sparsification andTriangle-Based Link Recommendation"
+
+## Birthday Paradox
+
+* https://arxiv.org/pdf/1212.2264.pdf "A space efficient streaming algorithm for estimating transitivity and triangle counts using the birthday paradox" 
+
 
 # Schedule
 
@@ -53,6 +70,16 @@ week3 on large dataset
 (send the email after the previous meeting, Nov. 14th)
 - Nov. 19th discussion (Tue. 12-2 or 4-5)
 
+---
+
+# Todos:
+
+* On Facebook, get error bar and etc. for multiple trials (Manqing)
+* Work on Spark-Graphx parallelization (Colin, Manqing)
+* Birthday Paradox implementation, Python (Sola)
+* Trace Estimation implementation, Python (Colin)
+* Wedge Sampling, Python (Rufeng)
+* Test on 3-4 small datasets (...pending...)
  
 
 
