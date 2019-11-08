@@ -40,13 +40,18 @@ This section lists the papers we need for this project:
    
    Algorithm 4, set d = 1
  
+## Trace Estimation
+
+* https://pdfs.semanticscholar.org/2471/6ee2bf34934e8eb70a7aca4ffa38b544ca81.pdf "Counting Triangles in Large Graphs using Randomized Matrix Trace Estimation"
+
+## Eigenvalue 
+
+* http://www.math.cmu.edu/~ctsourak/asonam_book.pdf "Spectral Counting of Triangles via Element-Wise Sparsification andTriangle-Based Link Recommendation"
+
 ## Birthday Paradox
 
 * https://arxiv.org/pdf/1212.2264.pdf "A space efficient streaming algorithm for estimating transitivity and triangle counts using the birthday paradox" 
 
-## Trace Estimation
-
-* https://pdfs.semanticscholar.org/2471/6ee2bf34934e8eb70a7aca4ffa38b544ca81.pdf "Counting Triangles in Large Graphs using Randomized Matrix Trace Estimation"
 
 # Schedule
 
