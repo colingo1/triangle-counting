@@ -4,6 +4,7 @@ import random
 import matplotlib.pyplot as plt
 import time
 import math
+from numpy.linalg import matrix_power
 
 
 class DOULION:
@@ -57,6 +58,8 @@ class DOULION:
 			cnt = self.node_iter()
 		elif alg == "trace_est":
 			cnt = self.trace_est()
+		elif alg == "trace_exact":
+			cnt = self.trace_exact()
 		elif alg == "":
 			pass
 
@@ -79,7 +82,7 @@ class DOULION:
 		#seems adequate, for social networks γ = 3 and for large
 		#web graphs/communications networks γ = 4.
 		# - section 6.2 (https://pdfs.semanticscholar.org/2471/6ee2bf34934e8eb70a7aca4ffa38b544ca81.pdf)
-		adjacency_matrix = nx.to_numpy_matrix(G)
+		adjacency_matrix = nx.to_numpy_matrix(self.sampled_G)
 		n = len(adjacency_matrix)
 		M = math.ceil(gamma * (np.log(n) ** 2))
 		T = np.empty(M)
@@ -90,7 +93,9 @@ class DOULION:
 			T[i] = float(Ti)/6
 		return np.sum(T)/M
 
-
+	def trace_exact(self):
+		a3 = matrix_power(nx.to_numpy_matrix(self.sampled_G),3)
+		return float(a3.trace())/6
 
 
 
@@ -138,7 +143,7 @@ if __name__ == "__main__":
 	for p in p_l:
 		counter = DOULION(G, p)
 		t = time.time()
-		cnt = counter.run("node_iter")
+		cnt = counter.run("trace_est")
 		run_time = time.time() - t
 		res.append((p, cnt, run_time))
 		print("p: ", p, ", triangle cnt: ", cnt)
