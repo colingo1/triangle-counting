@@ -90,8 +90,8 @@ class DOULION:
 		print(len(self.G.edges))
 		self.BirthdayGraph = nx.Graph() # using a secondary graph to do things involving reservoir edges
 
-		self.se = 5000 #parameter that tells us how many edges to store.
-		self.sw = 5000 #parameter that tells us how many wedges to store.
+		self.se = 10000 #parameter that tells us how many edges to store.
+		self.sw = 10000 #parameter that tells us how many wedges to store.
 		# experiments in the paper set se and sw to 10K, probably need to find a good number to use
 		self.edge_res = [None for i in range(self.se)] # list to store reservoir sample of edges
 		self.wedge_res = [None for i in range(self.sw)] # list to store reservoir sample of wedges
@@ -109,9 +109,10 @@ class DOULION:
 			self.birthday_update(et)
 			p = self.is_closed.count(True) / len(self.is_closed) # p is fraction of wedges that are detected to be closed
 			kt = 3*p
-			#TODO: something is wrong here. T keeps increasing because of the term self.t**2.
-			#      probably missing an extra step in the paper, or misinterpreting what t in algorithm 1 is
-			T = self.tot_wedges * (p*(self.t)**2) / (self.se * (self.se - 1)) # T is the number of triangles
+			#TODO: something is probably wrong with the estimate
+			#  getting triangle count of 8,000,000 instead of expected 1,600,000
+			#  possibly missing an extra step in the paper, or misinterpreting what t in algorithm 1 is
+			T = self.tot_wedges * (p*(self.t**2)) / (self.se * (self.se - 1)) # T is the number of triangles
 
 			self.t += 1
 
@@ -139,29 +140,20 @@ class DOULION:
 				self.is_closed[i] = True
 
 		updated = False
+		removed_edges = []
 		for i in range(self.se):
 			x = random.random()
 			if x <= 1/self.t:
 				if self.edge_res[i] is not None:
-					to_rem = list(self.edge_res[i])
-					try: #exception raised if edge isn't in graph.
-						# update total wedges to reflect losing this edge
-						self.tot_wedges -= (len(self.BirthdayGraph.edges(to_rem[0])) - 1) +\
-										   (len(self.BirthdayGraph.edges(to_rem[1])) - 1)
-						self.BirthdayGraph.remove_edge(to_rem[0], to_rem[1])
-					except:
-						pass
+					removed_edges.append(self.edge_res[i])
 				self.edge_res[i] = et
-				list_et = list(et)
-				self.BirthdayGraph.add_edge(list_et[0], list_et[1])
-				# update total wedges with new wedges formed by adding this edge
-				self.tot_wedges += (len(self.BirthdayGraph.edges(list_et[0])) - 1) +\
-								   (len(self.BirthdayGraph.edges(list_et[1])) - 1)
 				updated = True
 
+
+
 		if updated:
-			#update tot wedges and get number of wedges involving et
-			self.N = self.birthday_update_tot_wedges(et)
+			# update tot wedges and get number of wedges involving et
+			self.N = self.birthday_update_tot_wedges(et, removed_edges)
 			self.new_wedges = len(self.N)
 			if self.tot_wedges > 0:
 				for i in range(self.sw):
@@ -171,11 +163,28 @@ class DOULION:
 						self.wedge_res[i] = w
 						self.is_closed[i] = False
 
-	def birthday_update_tot_wedges(self, et):
+	def birthday_update_tot_wedges(self, et, removed_edges):
 		"""
 		part of birthday paradox alg.
 		:return:
 		"""
+
+		# fix the total wedges count
+		already_seen = []
+		for edge in removed_edges:
+			if edge not in already_seen and edge not in self.edge_res:
+				self.tot_wedges -= (len(self.BirthdayGraph.edges(list(edge)[0])) - 1) + \
+								   (len(self.BirthdayGraph.edges(list(edge)[1])) - 1)
+				self.BirthdayGraph.remove_edge(list(edge)[0], list(edge)[1])
+				already_seen.append(edge)
+
+		list_et = list(et)
+		self.BirthdayGraph.add_edge(list_et[0], list_et[1])
+		# update total wedges with new wedges formed by adding this edge
+		self.tot_wedges += (len(self.BirthdayGraph.edges(list_et[0])) - 1) + \
+						   (len(self.BirthdayGraph.edges(list_et[1])) - 1)
+
+		# get all new wedges made by the newly inserted edge
 		list_et = list(et)
 		new_wedges_with_et = []
 		for edge in self.BirthdayGraph.edges(list_et[0]):
