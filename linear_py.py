@@ -86,26 +86,65 @@ class DOULION:
 
 		:return:
 		"""
-		#wedges are tuples of two edges
-		print(len(self.G.edges))
-		self.BirthdayGraph = nx.Graph() # using a secondary graph to do things involving reservoir edges
+		
+		# algorithm 1: Streaming-Triangles (Se, Sw)
+		
+		# wedges are tuples of two edges
+		# a wedge is a path of length 2.
 
-		self.se = 10000 #parameter that tells us how many edges to store.
-		self.sw = 10000 #parameter that tells us how many wedges to store.
+		print(len(self.sampled_G.edges))
+		
+
+		self.se = int(0.1 * len(self.sampled_G.edges)) #parameter that tells us how many edges to store.
+		print(self.se)
+		# self.edge_res = [ None for i in range(self.se)] # list to store reservoir sample of edges
+		self.edge_res = random.sample(self.sampled_G.edges, self.se)
+		self.BirthdayGraph = nx.Graph() # using a secondary graph to do things involving reservoir edges
+		self.BirthdayGraph.add_edges_from(self.edge_res)
+
+		self.sw = int(0.01 * (self.se * max(self.sampled_G.degree(), key = lambda t:t[1])[1]))  #parameter that tells us how many wedges to store.
+		print(self.sw)
 		# experiments in the paper set se and sw to 10K, probably need to find a good number to use
-		self.edge_res = [None for i in range(self.se)] # list to store reservoir sample of edges
+		# se and sw should be based on sample_G
+		
 		self.wedge_res = [None for i in range(self.sw)] # list to store reservoir sample of wedges
+		# maintains a uniform sample of the wedges created by the edge reservoir at any step of the process. 
+		# (The wedge reservoir may include wedges whose edges are no longer in the edge reservoir.)
+
+
 		self.is_closed = [False for i in range(self.sw)] # list to store that a wedge has been detected to be closed
-		self.tot_wedges = 0
-		self.t = 1
+							# TODO: create this vector based on self.wedge_res
+		for i in range(self.sw):
+			found = False
+			while not found:
+				try:
+					n1 = random.choice(list(self.BirthdayGraph.nodes))
+					mid_point = random.choice(list(self.BirthdayGraph[n1].keys()))
+					n2 = random.choice(list(self.BirthdayGraph[mid_point].keys()))
+					if n1 != n2:
+						found = True
+				except IndexError:
+					continue
+
+			self.wedge_res[i] = ((n1, mid_point), (n2, mid_point))
+
+			if self.BirthdayGraph.has_edge(n1, n2):
+				self.is_closed[i] = True
+
+		self.tot_wedges = 0 
+		for i in range(self.se - 1):
+			for j in range(i+1, self.se):
+				if len(set(self.edge_res[i]).intersection(self.edge_res[j])) != 0:
+					self.tot_wedges += 1
+
+
+		self.t = 1  
 		T = 0
 
 		# since this is an algorithm for streaming, maybe we should make edges we get from G be randomized.
-		edges = list(self.G.edges)
+		edges = list(set(self.sampled_G.edges) - set(self.BirthdayGraph.edges))
 		random.shuffle(edges)
 		for et in edges:
-			et = set(et) # convert edge represented sa tuple into set
-
 			self.birthday_update(et)
 			p = self.is_closed.count(True) / len(self.is_closed) # p is fraction of wedges that are detected to be closed
 			kt = 3*p
@@ -114,14 +153,14 @@ class DOULION:
 			#  possibly missing an extra step in the paper, or misinterpreting what t in algorithm 1 is
 			T = self.tot_wedges * (p*(self.t**2)) / (self.se * (self.se - 1)) # T is the number of triangles
 
-			self.t += 1
+			self.t += 1  # ? trials?
 
 			if self.t % 500 == 0:
-				print(self.t)
-				print(T)
-				print(kt)
-				print(p)
-				print(self.tot_wedges)
+				print(self.t) # trial
+				print(T)      # triangle cnt
+				print(kt)     # 
+				print(p)      # fraction of closed wedges in the reservoir 
+				print(self.tot_wedges) # total # of wedges
 				print("----")
 		return T
 
@@ -132,34 +171,37 @@ class DOULION:
 		:return:
 		"""
 		for	i in range(self.sw):
-			if self.wedge_res[i] == None:
+			if self.wedge_res[i] == None:  # some slot might not be filled
 				continue
-			#et closes the wedge in wedge_res i
-			if len(self.wedge_res[i][0].intersection(et)) == 1 and \
-					len(self.wedge_res[i][1].intersection(et)) == 1:
-				self.is_closed[i] = True
+			# e_t closes the wedge in wedge_res i
+			# print(self.wedge_res[i][0], self.wedge_res[i][1], et)
+			if len(set(self.wedge_res[i][0]).intersection(et)) == 1 and \
+					len(set(self.wedge_res[i][1]).intersection(et)) == 1:
+				self.is_closed[i] = True  #
 
 		updated = False
 		removed_edges = []
 		for i in range(self.se):
 			x = random.random()
-			if x <= 1/self.t:
-				if self.edge_res[i] is not None:
-					removed_edges.append(self.edge_res[i])
+			if x <= 1/self.t: # 
+				if self.edge_res[i] is not None: # 
+					removed_edges.append(tuple(self.edge_res[i])) # some might be duplicated
 				self.edge_res[i] = et
 				updated = True
+		removed_edges = list(set(removed_edges))
 
-		if updated:
+		if updated: # if any update to edge_res
 			# update tot wedges and get number of wedges involving et
-			self.N = self.birthday_update_tot_wedges(et, removed_edges)
-			self.new_wedges = len(self.N)
-			if self.tot_wedges > 0:
+			N_t = self.birthday_update_tot_wedges(et, removed_edges) # tot_wedge updated
+			self.new_wedges = len(N_t)
+
+			if self.tot_wedges > 0: # change some of the wedge reservoir entries with N_t
 				for i in range(self.sw):
 					x = random.random()
 					if x <= self.new_wedges / self.tot_wedges:
-						w = random.choice(self.N)
+						w = random.choice(N_t)
 						self.wedge_res[i] = w
-						self.is_closed[i] = False
+						self.is_closed[i] = False   # didn't check; (?)
 
 	def birthday_update_tot_wedges(self, et, removed_edges):
 		"""
@@ -168,30 +210,28 @@ class DOULION:
 		"""
 
 		# fix the total wedges count
-		already_seen = []
+		# print("here!")
 		for edge in removed_edges:
-			if edge not in already_seen and edge not in self.edge_res:
-				self.tot_wedges -= (len(self.BirthdayGraph.edges(list(edge)[0])) - 1) + \
-								   (len(self.BirthdayGraph.edges(list(edge)[1])) - 1)
-				self.BirthdayGraph.remove_edge(list(edge)[0], list(edge)[1])
-				already_seen.append(edge)
+			self.tot_wedges -= (len(self.BirthdayGraph.edges(list(edge)[0])) - 1) + \
+							   (len(self.BirthdayGraph.edges(list(edge)[1])) - 1)
 
-		list_et = list(et)
-		self.BirthdayGraph.add_edge(list_et[0], list_et[1])
+			try:
+				self.BirthdayGraph.remove_edge(list(edge)[0], list(edge)[1]) 
+			except: # edge_res has duplicates; some edges are removed in the previous rounds
+				pass
+
+		self.BirthdayGraph.add_edge(list(et)[0], list(et)[1])
 		# update total wedges with new wedges formed by adding this edge
-		self.tot_wedges += (len(self.BirthdayGraph.edges(list_et[0])) - 1) + \
-						   (len(self.BirthdayGraph.edges(list_et[1])) - 1)
+		self.tot_wedges += (len(self.BirthdayGraph.edges(list(et)[0])) - 1) + \
+						   (len(self.BirthdayGraph.edges(list(et)[1])) - 1)
 
 		# get all new wedges made by the newly inserted edge
-		list_et = list(et)
-		new_wedges_with_et = []
-		for edge in self.BirthdayGraph.edges(list_et[0]):
-			if set(edge) != et:
-				new_wedges_with_et.append((set(edge), et))
 
-		for edge in self.BirthdayGraph.edges(list_et[1]):
-			if set(edge) != et:
-				new_wedges_with_et.append((set(edge), et))
+		new_wedges_with_et = [((list(et)[0], n1), (list(et)[0], n2)) 
+								for n1 in nx.neighbors(self.BirthdayGraph, list(et)[0]) if n1 != list(et)[1]
+							 	for n2 in nx.neighbors(self.BirthdayGraph, list(et)[1]) if n2 != list(et)[0]
+							 ]
+
 		return new_wedges_with_et
 
 
