@@ -227,10 +227,10 @@ class DOULION:
 
 		# get all new wedges made by the newly inserted edge
 
-		new_wedges_with_et = [((list(et)[0], n1), (list(et)[0], n2)) 
-								for n1 in nx.neighbors(self.BirthdayGraph, list(et)[0]) if n1 != list(et)[1]
-							 	for n2 in nx.neighbors(self.BirthdayGraph, list(et)[1]) if n2 != list(et)[0]
-							 ]
+		new_wedges_with_et = [((list(et)[0], n1), et) 
+								for n1 in nx.neighbors(self.BirthdayGraph, list(et)[0]) if n1 != list(et)[1]] + \
+							 [((list(et)[1], n2), et)
+							 	for n2 in nx.neighbors(self.BirthdayGraph, list(et)[1]) if n2 != list(et)[0]]
 
 		return new_wedges_with_et
 
