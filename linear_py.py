@@ -131,7 +131,7 @@ class DOULION:
 			if self.BirthdayGraph.has_edge(n1, n2):
 				self.is_closed[i] = True
 
-		self.tot_wedges = 0 
+		self.tot_wedges = 0
 		for i in range(self.se - 1):
 			for j in range(i+1, self.se):
 				if len(set(self.edge_res[i]).intersection(self.edge_res[j])) != 0:
@@ -247,14 +247,14 @@ def analysis(res, ground_truth):
 
 	fig, axes = plt.subplots(1, 2, figsize = (10, 5))
 
-	axes[0].plot([p for (p, cnt, t) in res], [cnt for (p, cnt, t) in res], '.-', color = 'k', label="simulation")
-	axes[0].plot([p for (p, cnt, t) in res], [ground_truth[0] * (p**3) for (p, cnt, t) in res], '.-', color = 'gray', label="estimate")
+	axes[0].plot([p for (p, cnt, t) in res], [(cnt / (p**3)) for (p, cnt, t) in res], '.-', color = 'k', label="simulation")
+	axes[0].plot([p for (p, cnt, t) in res], [ground_truth[0] for (p, cnt, t) in res], '.-', color = 'gray', label="estimate")
 	axes[0].set_title("Simulated vs Estimated triangle cnt. ")
 	axes[0].set_xlabel("p")
 	axes[0].set_ylabel("cnt.")
 
 	axes[1].plot([p for (p, cnt, t) in res], [t for (p, cnt, t) in res], '.-', color = 'k', label = "simulation")
-	axes[1].plot([p for (p, cnt, t) in res], [ground_truth[1] * (p**2) for (p, cnt, t) in res], '.-', color = 'gray', label= "estimate")
+	axes[1].plot([p for (p, cnt, t) in res], [ground_truth[1] for (p, cnt, t) in res], '.-', color = 'gray', label= "estimate")
 	axes[1].set_title("Simulated vs Estimated running_time ")
 	axes[1].set_xlabel("p")
 	axes[1].set_ylabel("running time (sec.)")
@@ -262,7 +262,7 @@ def analysis(res, ground_truth):
 	for i in range(2):
 		axes[i].legend()
 
-	fig.savefig("./log/node_iter_facebook.png")
+	fig.savefig("./log/result_image.png")
 
 	return
 
@@ -272,7 +272,7 @@ if __name__ == "__main__":
 
 	# setting
 	G = nx.read_edgelist("facebook_combined.txt", delimiter = ' ', data = (('w', int),))
-	p_l = [1]#[0.1, 0.3, 0.5, 0.7, 1]
+	p_l = [0.1, 0.3, 0.5, 0.7, 1]
 	res = []
 
 	for p in p_l:
