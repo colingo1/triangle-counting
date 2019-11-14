@@ -235,6 +235,28 @@ class DOULION:
 		return new_wedges_with_et
 
 
+	def trace_est(self):
+		gamma = 3
+		# For collaboration/citations graphs γ = 1 − 2
+		#seems adequate, for social networks γ = 3 and for large
+		#web graphs/communications networks γ = 4.
+		# - section 6.2 (https://pdfs.semanticscholar.org/2471/6ee2bf34934e8eb70a7aca4ffa38b544ca81.pdf)
+		adjacency_matrix = nx.to_numpy_matrix(self.sampled_G)
+		n = len(adjacency_matrix)
+		M = math.ceil(gamma * (np.log(n) ** 2))
+		T = np.empty(M)
+		for i in range(M):
+			x = np.random.rand(n)
+			y = np.matmul(x,adjacency_matrix)
+			Ti = np.matmul(np.matmul(y,adjacency_matrix),y.transpose())
+			T[i] = float(Ti)/6
+		return np.sum(T)/M
+
+	def trace_exact(self):
+		a3 = matrix_power(nx.to_numpy_matrix(self.sampled_G),3)
+		return float(a3.trace())/6
+
+
 def analysis(res, ground_truth):
 	'''
 	v.1
@@ -262,7 +284,7 @@ def analysis(res, ground_truth):
 	for i in range(2):
 		axes[i].legend()
 
-	fig.savefig("./log/result_image.png")
+	fig.savefig("./log/trace_exact_run.png")
 
 	return
 
@@ -278,7 +300,7 @@ if __name__ == "__main__":
 	for p in p_l:
 		counter = DOULION(G, p)
 		t = time.time()
-		cnt = counter.run("birthday")#("node_iter")
+		cnt = counter.run("trace_exact")#("node_iter")
 		run_time = time.time() - t
 		res.append((p, cnt, run_time))
 		print("p: ", p, ", triangle cnt: ", cnt)
