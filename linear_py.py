@@ -276,7 +276,7 @@ def analysis(res, ground_truth):
 	axes[0].set_ylabel("cnt.")
 
 	axes[1].plot([p for (p, cnt, t) in res], [t for (p, cnt, t) in res], '.-', color = 'k', label = "simulation")
-	axes[1].plot([p for (p, cnt, t) in res], [ground_truth[1] for (p, cnt, t) in res], '.-', color = 'gray', label= "estimate")
+	axes[1].plot([p for (p, cnt, t) in res], [ground_truth[1] * (p**2) for (p, cnt, t) in res], '.-', color = 'gray', label= "estimate")
 	axes[1].set_title("Simulated vs Estimated running_time ")
 	axes[1].set_xlabel("p")
 	axes[1].set_ylabel("running time (sec.)")
@@ -284,7 +284,7 @@ def analysis(res, ground_truth):
 	for i in range(2):
 		axes[i].legend()
 
-	fig.savefig("./log/trace_exact_run.png")
+	fig.savefig("./log/node_iter_facebook_v2.png")
 
 	return
 
@@ -300,7 +300,7 @@ if __name__ == "__main__":
 	for p in p_l:
 		counter = DOULION(G, p)
 		t = time.time()
-		cnt = counter.run("trace_exact")#("node_iter")
+		cnt = counter.run("node_iter")#("node_iter")
 		run_time = time.time() - t
 		res.append((p, cnt, run_time))
 		print("p: ", p, ", triangle cnt: ", cnt)
