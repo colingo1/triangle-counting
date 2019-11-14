@@ -81,8 +81,11 @@ week3 on large dataset
 * Wedge Sampling, Python (Rufeng)
 * Test on 3-4 small datasets (...pending...)
  
+# Datasets:
 
-
+* https://sparse.tamu.edu/Pajek/HEP-th-new
+* https://sparse.tamu.edu/SNAP/soc-Epinions1
+* https://sparse.tamu.edu/Pajek/EAT_RS
 
 
  
