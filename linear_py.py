@@ -57,6 +57,8 @@ class DOULION:
 		# deterministic
 		if alg == "node_iter":
 			cnt = self.node_iter()
+		elif alg == "edge_iter":
+			cnt = self.edge_iter()
 		elif alg == "trace_exact":
 			cnt = self.trace_exact()
 		# randomized
@@ -81,6 +83,17 @@ class DOULION:
 		cnt_total = sum(tri_dic.values()) / 3
 
 		return cnt_total
+
+	def edge_iter(self):
+		num_triangles = 0
+		for edge in self.sampled_G.edges:
+			n = edge[0]
+			m = edge[1]
+			nodeset_n = set([s for s in self.sampled_G.neighbors(n)])# if n < s and s < m])
+			nodeset_m = set([s for s in self.sampled_G.neighbors(m)])# if n < s and s < m])
+			num_triangles += len(nodeset_m.intersection(nodeset_n))
+
+		return num_triangles / 3
 
 	def birthday_paradox(self):
 		"""
@@ -232,7 +245,7 @@ class DOULION:
 		new_wedges_with_et = [((list(et)[0], n1), et) 
 								for n1 in nx.neighbors(self.BirthdayGraph, list(et)[0]) if n1 != list(et)[1]] + \
 							 [((list(et)[1], n2), et)
-							 	for n2 in nx.neighbors(self.BirthdayGraph, list(et)[1]) if n2 != list(et)[0]]
+								for n2 in nx.neighbors(self.BirthdayGraph, list(et)[1]) if n2 != list(et)[0]]
 
 		return new_wedges_with_et
 
@@ -289,6 +302,28 @@ class DOULION:
 		return cnt
 
 
+	def trace_est(self):
+		gamma = 3
+		# For collaboration/citations graphs γ = 1 − 2
+		#seems adequate, for social networks γ = 3 and for large
+		#web graphs/communications networks γ = 4.
+		# - section 6.2 (https://pdfs.semanticscholar.org/2471/6ee2bf34934e8eb70a7aca4ffa38b544ca81.pdf)
+		adjacency_matrix = nx.to_numpy_matrix(self.sampled_G)
+		n = len(adjacency_matrix)
+		M = math.ceil(gamma * (np.log(n) ** 2))
+		T = np.empty(M)
+		for i in range(M):
+			x = np.random.rand(n)
+			y = np.matmul(x,adjacency_matrix)
+			Ti = np.matmul(np.matmul(y,adjacency_matrix),y.transpose())
+			T[i] = float(Ti)/6
+		return np.sum(T)/M
+
+	def trace_exact(self):
+		a3 = matrix_power(nx.to_numpy_matrix(self.sampled_G),3)
+		return float(a3.trace())/6
+
+
 def analysis(res, ground_truth):
 	'''
 	v.1
@@ -320,6 +355,7 @@ def analysis(res, ground_truth):
 
 	fig.savefig("./log/result_image_eigen.png")
 
+
 	return
 
 
@@ -342,4 +378,6 @@ if __name__ == "__main__":
 
 	analysis(res, (res[-1][1], res[-1][2]))
 
+	# TODO: clean up to make running experiments straightforward
+	# note: use fast_gnp_random_graph for testing on ER graph
 
