@@ -2,6 +2,9 @@ from collections import defaultdict
 
 import networkx as nx
 import numpy as np
+import scipy
+import scipy.sparse.linalg
+from scipy.sparse import lil_matrix
 import random
 import matplotlib.pyplot as plt
 import time
@@ -50,20 +53,19 @@ class DOULION:
 	def tri_count(self, alg):
 		'''
 		:param alg:
-			"node_iter",
-			"edge_iter".
-			"trace_est",
-			"wedge_sampling"
 		'''
-
+		# deterministic
 		if alg == "node_iter":
 			cnt = self.node_iter()
-		elif alg == "trace_est":
-			cnt = self.trace_est()
 		elif alg == "trace_exact":
 			cnt = self.trace_exact()
+		# randomized
+		elif alg == "trace_est":
+			cnt = self.trace_est()
 		elif alg == "birthday":
 			cnt = self.birthday_paradox()
+		elif alg == "eigen_est":
+			cnt = self.eigen_est()
 		elif alg == "":
 			pass
 
@@ -234,6 +236,58 @@ class DOULION:
 
 		return new_wedges_with_et
 
+	def eigen_est(self):
+		'''
+		http://www.math.cmu.edu/~ctsourak/asonam_book.pdf
+
+		:param 
+		'''
+		tol = 0.0001
+		p = 1
+
+		A = scipy.sparse.lil_matrix(nx.adjacency_matrix(self.sampled_G), dtype=float)
+
+		# stage 1: Achlioptas-McSherry Sparsification
+		# similar to DOULIN, but retain all the edges
+		assert(A.shape[0] == A.shape[1])
+
+		n_cnt = A.shape[0]
+		for i in range(n_cnt):
+			for j in range(n_cnt):
+				# toss a coin with success prob. p
+				if random.random() < p:
+					A[i, j] /= p
+				else:
+					pass
+
+		# stage 2: EigenTriangle
+		# initialization: i, lambda_vec
+
+		# Lanczos  method: efficient  for  finding  the  top eigenvalues in sparse, symmetric matrices.
+
+		lambda_vec_all, _ =  scipy.sparse.linalg.eigsh(A.toarray(), k = int(n_cnt * 0.5))
+		# directly use the scipy implementation, 
+		# top x eigenvalues - for facebook p = 0.3, x = 0.3 is not enough
+		def LanczosMethod(A, i):
+			return lambda_vec_all[i-1]
+
+
+		lambda_i = LanczosMethod(A, 1) # i = 1
+		lambda_vec = [lambda_i]
+		
+		err = np.inf
+		i = 2
+		while err > tol:
+			lambda_i = LanczosMethod(A, i)
+			lambda_vec.append(lambda_i)
+			i += 1
+
+			err = np.abs(np.power(lambda_i, 3)) / np.sum(np.power(np.abs(lambda_vec), 3))
+
+		cnt = np.sum(np.power(np.abs(lambda_vec[:-1]), 3)) / 6
+
+		return cnt
+
 
 def analysis(res, ground_truth):
 	'''
@@ -247,14 +301,16 @@ def analysis(res, ground_truth):
 
 	fig, axes = plt.subplots(1, 2, figsize = (10, 5))
 
-	axes[0].plot([p for (p, cnt, t) in res], [(cnt / (p**3)) for (p, cnt, t) in res], '.-', color = 'k', label="simulation")
-	axes[0].plot([p for (p, cnt, t) in res], [ground_truth[0] for (p, cnt, t) in res], '.-', color = 'gray', label="estimate")
+	axes[0].plot([p for (p, cnt, t) in res], [cnt for (p, cnt, t) in res], '.-', color = 'k', label="simulation")
+	axes[0].plot([p for (p, cnt, t) in res], [ground_truth[0] * (p ** 3) for (p, cnt, t) in res], '.-', color = 'gray', label="estimate")
+	#
 	axes[0].set_title("Simulated vs Estimated triangle cnt. ")
 	axes[0].set_xlabel("p")
 	axes[0].set_ylabel("cnt.")
 
 	axes[1].plot([p for (p, cnt, t) in res], [t for (p, cnt, t) in res], '.-', color = 'k', label = "simulation")
-	axes[1].plot([p for (p, cnt, t) in res], [ground_truth[1] for (p, cnt, t) in res], '.-', color = 'gray', label= "estimate")
+	axes[1].plot([p for (p, cnt, t) in res], [ground_truth[1] * (p ** 2) for (p, cnt, t) in res], '.-', color = 'gray', label= "estimate")
+	# 
 	axes[1].set_title("Simulated vs Estimated running_time ")
 	axes[1].set_xlabel("p")
 	axes[1].set_ylabel("running time (sec.)")
@@ -262,7 +318,7 @@ def analysis(res, ground_truth):
 	for i in range(2):
 		axes[i].legend()
 
-	fig.savefig("./log/result_image.png")
+	fig.savefig("./log/result_image_eigen.png")
 
 	return
 
@@ -273,12 +329,13 @@ if __name__ == "__main__":
 	# setting
 	G = nx.read_edgelist("facebook_combined.txt", delimiter = ' ', data = (('w', int),))
 	p_l = [0.1, 0.3, 0.5, 0.7, 1]
+	# p_l = [0.3]
 	res = []
 
 	for p in p_l:
 		counter = DOULION(G, p)
 		t = time.time()
-		cnt = counter.run("birthday")#("node_iter")
+		cnt = counter.run("eigen_est")#("node_iter")
 		run_time = time.time() - t
 		res.append((p, cnt, run_time))
 		print("p: ", p, ", triangle cnt: ", cnt)
