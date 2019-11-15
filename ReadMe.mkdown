@@ -80,6 +80,7 @@ week3 on large dataset
 * Trace Estimation implementation, Python (Colin)
 * Wedge Sampling, Python (Rufeng)
 * Test on 3-4 small datasets (...pending...)
+* Run experiments on node iterator, edge iterator, trace exact to prepare for meeting
  
 # Datasets:
 
