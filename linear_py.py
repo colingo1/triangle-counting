@@ -101,27 +101,27 @@ class DOULION:
 
 		:return:
 		"""
-		
+
 		# algorithm 1: Streaming-Triangles (Se, Sw)
-		
+
 		# wedges are tuples of two edges
 		# a wedge is a path of length 2.
 
 		print(len(self.sampled_G.edges))
-		
 
-		self.se = 10000
+
+		self.se = 10000# int(0.1 * len(self.sampled_G.edges)) #10000
 		print(self.se)
 		self.edge_res = [ None for i in range(self.se)] # list to store reservoir sample of edges
 		self.BirthdayGraph = nx.Graph() # using a secondary graph to do things involving reservoir edges
 
-		self.sw = 10000
+		self.sw = 10000#min(10000, int(0.01 * (self.se * max(self.sampled_G.degree(), key = lambda t:t[1])[1])))  #parameter that tells us how many wedges to store. #10000
 		print(self.sw)
 		# experiments in the paper set se and sw to 10K, probably need to find a good number to use
 		# se and sw should be based on sample_G
-		
+
 		self.wedge_res = [None for i in range(self.sw)] # list to store reservoir sample of wedges
-		# maintains a uniform sample of the wedges created by the edge reservoir at any step of the process. 
+		# maintains a uniform sample of the wedges created by the edge reservoir at any step of the process.
 		# (The wedge reservoir may include wedges whose edges are no longer in the edge reservoir.)
 
 
@@ -129,7 +129,7 @@ class DOULION:
 
 		self.tot_wedges = 0
 
-		self.t = 1  
+		self.t = 1
 		T = 0
 
 		# since this is an algorithm for streaming, maybe we should make edges we get from G be randomized.
@@ -145,13 +145,13 @@ class DOULION:
 
 			self.t += 1  # ? trials?
 
-			# if self.t % 500 == 0:
-				# print(self.t) # trial
-				# print(T)      # triangle cnt
-				# print(kt)     #
-				# print(p)      # fraction of closed wedges in the reservoir
-				# print(self.tot_wedges) # total # of wedges
-				# print("----")
+			if self.t % 500 == 0:
+				print(self.t) # trial
+				print(T)      # triangle cnt
+				print(kt)     #
+				print(p)      # fraction of closed wedges in the reservoir
+				print(self.tot_wedges) # total # of wedges
+				print("----")
 		return T
 
 	def birthday_update(self, next_edge):
@@ -169,13 +169,17 @@ class DOULION:
 
 		updated = False
 		removed_edges = []
-		for i in range(self.se):
-			x = random.random()
-			if x <= 1/self.t: # 
-				if self.edge_res[i] is not None: # 
-					removed_edges.append(self.edge_res[i]) # some might be duplicated
-				self.edge_res[i] = next_edge_as_set
-				updated = True
+
+		x = random.random()
+		if x <= (1 - (1 - 1/self.t)**self.se):
+		# for i in range(self.se):
+		# 	if x <= 1/self.t: #
+			i = random.randint(0, self.se-1)
+			if self.edge_res[i] is not None: #
+				removed_edges.append(self.edge_res[i]) # some might be duplicated
+			self.edge_res[i] = next_edge_as_set
+			updated = True
+#				break
 
 		if updated: # if any update to edge_res
 			# update tot wedges and get number of wedges involving et
@@ -234,7 +238,7 @@ class DOULION:
 		'''
 		http://www.math.cmu.edu/~ctsourak/asonam_book.pdf
 
-		:param 
+		:param
 		'''
 		tol = 0.0001
 		p = 1
@@ -260,7 +264,7 @@ class DOULION:
 		# Lanczos  method: efficient  for  finding  the  top eigenvalues in sparse, symmetric matrices.
 
 		lambda_vec_all, _ =  scipy.sparse.linalg.eigsh(A.toarray(), k = int(n_cnt * 0.5))
-		# directly use the scipy implementation, 
+		# directly use the scipy implementation,
 		# top x eigenvalues - for facebook p = 0.3, x = 0.3 is not enough
 		def LanczosMethod(A, i):
 			return lambda_vec_all[i-1]
@@ -268,7 +272,7 @@ class DOULION:
 
 		lambda_i = LanczosMethod(A, 1) # i = 1
 		lambda_vec = [lambda_i]
-		
+
 		err = np.inf
 		i = 2
 		while err > tol:
@@ -326,7 +330,7 @@ def analysis(res, ground_truth):
 
 	axes[1].plot([p for (p, cnt, t) in res], [t for (p, cnt, t) in res], '.-', color = 'k', label = "simulation")
 	axes[1].plot([p for (p, cnt, t) in res], [ground_truth[1] * (p ** 2) for (p, cnt, t) in res], '.-', color = 'gray', label= "estimate")
-	# 
+	#
 	axes[1].set_title("Simulated vs Estimated running_time ")
 	axes[1].set_xlabel("p")
 	axes[1].set_ylabel("running time (sec.)")
@@ -334,7 +338,7 @@ def analysis(res, ground_truth):
 	for i in range(2):
 		axes[i].legend()
 
-	fig.savefig("./log/log_birthday_newest.png")
+	fig.savefig("./log/log_birthday_newest_modifiedsesw.png")
 
 
 	return
@@ -345,7 +349,7 @@ if __name__ == "__main__":
 
 	# setting
 	G = nx.read_edgelist("facebook_combined.txt", delimiter = ' ', data = (('w', int),))
-	p_l = [0.1, 0.3, 0.5, 0.7, 1]
+	p_l = [1]#[0.1, 0.3, 0.5, 0.7, 1]
 	# p_l = [0.3]
 	res = []
 
