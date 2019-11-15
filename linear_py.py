@@ -58,6 +58,8 @@ class DOULION:
 
 		if alg == "node_iter":
 			cnt = self.node_iter()
+		elif alg == "edge_iter":
+			cnt = self.edge_iter()
 		elif alg == "trace_est":
 			cnt = self.trace_est()
 		elif alg == "trace_exact":
@@ -79,6 +81,17 @@ class DOULION:
 		cnt_total = sum(tri_dic.values()) / 3
 
 		return cnt_total
+
+	def edge_iter(self):
+		num_triangles = 0
+		for edge in self.sampled_G.edges:
+			n = edge[0]
+			m = edge[1]
+			nodeset_n = set([s for s in self.sampled_G.neighbors(n)])# if n < s and s < m])
+			nodeset_m = set([s for s in self.sampled_G.neighbors(m)])# if n < s and s < m])
+			num_triangles += len(nodeset_m.intersection(nodeset_n))
+
+		return num_triangles / 3
 
 	def birthday_paradox(self):
 		"""
@@ -230,7 +243,7 @@ class DOULION:
 		new_wedges_with_et = [((list(et)[0], n1), et) 
 								for n1 in nx.neighbors(self.BirthdayGraph, list(et)[0]) if n1 != list(et)[1]] + \
 							 [((list(et)[1], n2), et)
-							 	for n2 in nx.neighbors(self.BirthdayGraph, list(et)[1]) if n2 != list(et)[0]]
+								for n2 in nx.neighbors(self.BirthdayGraph, list(et)[1]) if n2 != list(et)[0]]
 
 		return new_wedges_with_et
 
@@ -284,7 +297,7 @@ def analysis(res, ground_truth):
 	for i in range(2):
 		axes[i].legend()
 
-	fig.savefig("./log/node_iter_facebook_v2.png")
+	fig.savefig("./log/edge_iter_facebok.png")
 
 	return
 
@@ -300,11 +313,13 @@ if __name__ == "__main__":
 	for p in p_l:
 		counter = DOULION(G, p)
 		t = time.time()
-		cnt = counter.run("node_iter")#("node_iter")
+		cnt = counter.run("edge_iter")#("node_iter")
 		run_time = time.time() - t
 		res.append((p, cnt, run_time))
 		print("p: ", p, ", triangle cnt: ", cnt)
 
 	analysis(res, (res[-1][1], res[-1][2]))
 
+	# TODO: clean up to make running experiments straightforward
+	# note: use fast_gnp_random_graph for testing on ER graph
 
