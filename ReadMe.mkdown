@@ -84,12 +84,42 @@ week3 on large dataset
  
 # Datasets:
 
-* https://sparse.tamu.edu/Pajek/HEP-th-new
-* https://sparse.tamu.edu/SNAP/soc-Epinions1
-* https://sparse.tamu.edu/Pajek/EAT_RS
+* https://sparse.tamu.edu/Pajek/HEP-th-new  HEP-th-new, a academic collaboration network, N = 27,770 E = 352,285
+* https://sparse.tamu.edu/SNAP/soc-Epinions1  Epinions network, a product review social network N = 75,877, E = 405,740 (*this social network could be changed to facebook if too expensive to compute*)
+* https://sparse.tamu.edu/Pajek/EAT_RS A language network, N = 23,219, E = 304,937
+* ER graph of (N, p) = (,)
 
 
- 
+# RESULT
+
+(RAW RUNNING RESULT)
+
+## Example of one piece of result
+
+* (for deterministic alg.)
+
+|dataset   |  N | E  | Deterministic - node iterator   | 
+|---|---|---|---|
+| facebook  |  4039 | 88234| (p = 0.1, accuracy=, speedup=)  |
+
+* (for randomized alg.)
+
+|dataset   |  N | E  |  Randomized Algorithms. - trace est. |
+|---|---|---|---|
+| facebook  |  4039 | 88234|  (chained? = no, [alg. specific params.], p = 0.1, accuracy=, speedup=) |
+
+p = 0.1, 0.3, 0.5, 0.7, 0.9, 1 (ground truth)  
+
+(for randomized algorithms) chained? = yes, no *(If chained to DOULIN)*  
+
+dataset \* 4
+
+deterministic * 3 (node iterator, edge iterator, trace) + randomized algorithms * 4 (simple wedge sampling, birthday paradox wedge sampling, trace estimation, eigenvalue estimation) = 7 algorithms
+
+## Altogether --
+
+"no. of datasets" \* ("no. of p sparsification" \* "no. of trials" \* ("no. of deterministic alg.s" + 2 * "no. of randomized alg.s"))
+= 4 \* (6 \* 5 \* ( 3 + 2 \* 4)) = 1320  (**this number is subject to change**)
 
 
 
