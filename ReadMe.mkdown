@@ -103,7 +103,6 @@ week3 on large dataset
 |dataset   |  N | E  | Deterministic - node iterator   | 
 |---|---|---|---|
 | facebook  |  4039 | 88234| (p = 0.1, accuracy=, speedup=)  |
-|---|---|---|---|
 | HEP-th-new  |  27770 | 352324 | experiments run, will input here later  |
 
 |dataset   |  N | E  | Deterministic - edge iterator   | 
