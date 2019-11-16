@@ -51,6 +51,8 @@ This section lists the papers we need for this project:
 ## Birthday Paradox
 
 * https://arxiv.org/pdf/1212.2264.pdf "A space efficient streaming algorithm for estimating transitivity and triangle counts using the birthday paradox" 
+* http://chbrown.github.io/kdd-2013-usb/kdd/p589.pdf basically the same paper, but the algorithms are written out slightly differently (most notably, first paper made it seem like every edge could be added to edge_res many times, but this paper makes it clear that it is only added once). 
+Current implementation of the algorithm also updates is_closed whenever an edge is removed, which isn't explicitly mentioned in either paper, but empirically this has given the best results.
 
 
 # Schedule
