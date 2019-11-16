@@ -5,11 +5,13 @@ import numpy as np
 import scipy
 import scipy.sparse.linalg
 from scipy.sparse import lil_matrix
+from scipy.io import loadmat
 import random
 import matplotlib.pyplot as plt
 import time
 import math
 from numpy.linalg import matrix_power
+import os
 
 
 class DOULION:
@@ -40,7 +42,7 @@ class DOULION:
 
 		for e in G.edges():
 			# toss a coin with success prob. p
-			if random.random() < p:
+			if random.random() < self.p:
 				# G.edges[e]['w'] = 1/p
 				self.sampled_G.add_edge(e[0], e[1])
 			else:
@@ -110,12 +112,12 @@ class DOULION:
 		print(len(self.sampled_G.edges))
 
 
-		self.se = 10000# int(0.1 * len(self.sampled_G.edges)) #10000
+		self.se = 10000
 		print(self.se)
 		self.edge_res = [ None for i in range(self.se)] # list to store reservoir sample of edges
 		self.BirthdayGraph = nx.Graph() # using a secondary graph to do things involving reservoir edges
 
-		self.sw = 10000#min(10000, int(0.01 * (self.se * max(self.sampled_G.degree(), key = lambda t:t[1])[1])))  #parameter that tells us how many wedges to store. #10000
+		self.sw = 10000
 		print(self.sw)
 		# experiments in the paper set se and sw to 10K, probably need to find a good number to use
 		# se and sw should be based on sample_G
@@ -343,20 +345,45 @@ def analysis(res, ground_truth):
 
 	return
 
+def load_hepth():
+	raw_dat = loadmat('data/HEP-th-new.mat')
+	mat_dat = scipy.sparse.csr_matrix(raw_dat['Problem'][0][0][2])
+	return nx.from_scipy_sparse_matrix(mat_dat)
+
+def run_experiments(G, p_l, algs, trials, dataset_name):
+	result_dir = 'results/'+dataset_name
+	os.mkdir(result_dir)
+	for alg in algs:
+		os.mkdir(result_dir+"/"+alg)
+		res = [('trial', 'p', 'count', 'time')]
+		for p in p_l:
+			for trial in range(trials):
+				counter = DOULION(G, p)
+				t = time.time()
+				cnt = counter.run("node_iter")  # ("node_iter")
+				run_time = time.time() - t
+				res.append((trial, p, cnt, run_time))
+		with open(result_dir+"/"+alg+'/result.txt', 'w') as f:
+			for item in res:
+				f.write("{}\n".format(item))
 
 
 if __name__ == "__main__":
 
 	# setting
 	G = nx.read_edgelist("facebook_combined.txt", delimiter = ' ', data = (('w', int),))
-	p_l = [1]#[0.1, 0.3, 0.5, 0.7, 1]
-	# p_l = [0.3]
-	res = []
+	p_l = [0.1, 0.3, 0.5, 0.7, 1]
+	det_algs = ['node_iter', 'edge_iter', 'trace_exact']
 
+	# following 2 lines for running experiments over hep-th-new
+	#G = load_hepth()
+	#run_experiments(G, p_l, det_algs, trials=5, dataset_name='hep_th')
+
+	res = []
 	for p in p_l:
 		counter = DOULION(G, p)
 		t = time.time()
-		cnt = counter.run("birthday")#("node_iter")
+		cnt = counter.run("node_iter")#("node_iter")
 		run_time = time.time() - t
 		res.append((p, cnt, run_time))
 		print("p: ", p, ", triangle cnt: ", cnt)
