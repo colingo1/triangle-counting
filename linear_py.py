@@ -360,7 +360,7 @@ def run_experiments(G, p_l, algs, trials, dataset_name):
 			for trial in range(trials):
 				counter = DOULION(G, p)
 				t = time.time()
-				cnt = counter.run("node_iter")  # ("node_iter")
+				cnt = counter.run(alg)  # ("node_iter")
 				run_time = time.time() - t
 				res.append((trial, p, cnt, run_time))
 		with open(result_dir+"/"+alg+'/result.txt', 'w') as f:
@@ -371,25 +371,26 @@ def run_experiments(G, p_l, algs, trials, dataset_name):
 if __name__ == "__main__":
 
 	# setting
-	G = nx.read_edgelist("facebook_combined.txt", delimiter = ' ', data = (('w', int),))
+	#G = nx.read_edgelist("facebook_combined.txt", delimiter = ' ', data = (('w', int),))
 	p_l = [0.1, 0.3, 0.5, 0.7, 1]
-	det_algs = ['node_iter', 'edge_iter', 'trace_exact']
+	algs = ['node_iter', 'edge_iter']#, 'trace_exact']#, 'trace_est', 'birthday', 'eigen_est']
 
 	# following 2 lines for running experiments over hep-th-new
-	#G = load_hepth()
-	#run_experiments(G, p_l, det_algs, trials=5, dataset_name='hep_th')
+	# G = load_hepth()
+	run_experiments(G, p_l, algs, trials=5, dataset_name='hep_th')
 
-	res = []
-	for p in p_l:
-		counter = DOULION(G, p)
-		t = time.time()
-		cnt = counter.run("node_iter")#("node_iter")
-		run_time = time.time() - t
-		res.append((p, cnt, run_time))
-		print("p: ", p, ", triangle cnt: ", cnt)
-		print("run time: ", run_time)
 
-	analysis(res, (res[-1][1], res[-1][2]))
+	# res = []
+	# for p in p_l:
+	# 	counter = DOULION(G, p)
+	# 	t = time.time()
+	# 	cnt = counter.run("node_iter")#("node_iter")
+	# 	run_time = time.time() - t
+	# 	res.append((p, cnt, run_time))
+	# 	print("p: ", p, ", triangle cnt: ", cnt)
+	# 	print("run time: ", run_time)
+	#
+	# analysis(res, (res[-1][1], res[-1][2]))
 
 	# TODO: clean up to make running experiments straightforward
 	# note: use fast_gnp_random_graph for testing on ER graph
