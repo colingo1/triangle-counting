@@ -86,14 +86,14 @@ def main():
 
 		res = []
 		for p in [0.1, 0.3, 0.5, 0.7, 1.0]:
-			res.append((p, np.mean(p_count_dict[p]), np.mean(p_time_dict[p])))
+			res.append((p, np.mean(p_count_dict[p]), np.mean(p_time_dict[p]))) #
 		accuracy_speedup_dots(res, (res[-1][1], res[-1][2]), dataset+alg+"acc_speed_res.png", alg_name, data_name)
 		analysis(res, (res[-1][1], res[-1][2]), dataset+alg+"analysis_est_vs_sim.png", alg_name, data_name)
 
 		# For if we want error bars / something with std
 		res=[]
 		for p in [0.1, 0.3, 0.5, 0.7, 1.0]:
-			res.append((p, np.mean(p_count_dict[p])/(p**3), np.std(p_count_dict[p])/(p**3), np.mean(p_time_dict[p]), np.std(p_time_dict[p])))
+			res.append((p, np.mean(p_count_dict[p])/(p**3), np.std(p_count_dict[p])/(p**3), np.mean(p_time_dict[p])/(p**2), np.std(p_time_dict[p])/(p**2)))
 
 		analysis_with_errorbars(res, (res[-1][1], res[-1][3]), dataset+alg+"result_with_errorbars.png", alg_name, data_name)
 
