@@ -301,13 +301,16 @@ class DOULION:
 		T = np.empty(M)
 		for i in range(M):
 			x = np.random.rand(n)
-			y = np.matmul(x,adjacency_matrix)
+			y = np.matmul(adjacency_matrix,x)
 			Ti = np.matmul(np.matmul(y,adjacency_matrix),y.transpose())
 			T[i] = float(Ti)/6
 		return np.sum(T)/M
 
 	def trace_exact(self):
-		a3 = matrix_power(nx.to_numpy_matrix(self.sampled_G),3)
+		a_sparse = nx.to_scipy_sparse_matrix(self.sampled_G)
+		a3_sparse = a_sparse* a_sparse * a_sparse
+		a3 = a3_sparse.todense()
+		#a3 = matrix_power(nx.to_numpy_matrix(self.sampled_G),3)
 		return float(a3.trace())/6
 
 
@@ -363,6 +366,7 @@ def run_experiments(G, p_l, algs, trials, dataset_name):
 				cnt = counter.run(alg)  # ("node_iter")
 				run_time = time.time() - t
 				res.append((trial, p, cnt, run_time))
+				print("finished a trial")
 		with open(result_dir+"/"+alg+'/result.txt', 'w') as f:
 			for item in res:
 				f.write("{}\n".format(item))
@@ -373,11 +377,11 @@ if __name__ == "__main__":
 	# setting
 	#G = nx.read_edgelist("facebook_combined.txt", delimiter = ' ', data = (('w', int),))
 	p_l = [0.1, 0.3, 0.5, 0.7, 1]
-	algs = ['node_iter', 'edge_iter']#, 'trace_exact']#, 'trace_est', 'birthday', 'eigen_est']
+	algs = ['trace_est']#, 'trace_est', 'birthday', 'eigen_est']
 
 	# following 2 lines for running experiments over hep-th-new
-	# G = load_hepth()
-	run_experiments(G, p_l, algs, trials=5, dataset_name='hep_th')
+	G = nx.fast_gnp_random_graph(25000,0.001)
+	run_experiments(G, p_l, algs, trials=1, dataset_name='random_np_est')
 
 
 	# res = []
