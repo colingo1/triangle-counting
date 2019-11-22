@@ -135,9 +135,11 @@ class DOULION:
 		T = 0
 
 		# since this is an algorithm for streaming, maybe we should make edges we get from G be randomized.
-		edges = list(set(self.sampled_G.edges) - set(self.BirthdayGraph.edges))
+		edges = list(self.sampled_G.edges)#list(set(self.sampled_G.edges) - set(self.BirthdayGraph.edges))
 		random.shuffle(edges)
 		for et in edges:
+			if len(et) != 2:
+				pass
 			self.birthday_update(et)
 			p = self.is_closed.count(True) / len(self.is_closed) # p is fraction of wedges that are detected to be closed
 			kt = 3*p
@@ -208,18 +210,20 @@ class DOULION:
 		already_removed = []
 		for edge in removed_edges:
 			if edge not in already_removed and edge not in self.edge_res:
-				already_removed.append(edge)
 				edge_as_list = list(edge)
-				self.tot_wedges -= (self.BirthdayGraph.degree[edge_as_list[0]] - 1) + \
-								   (self.BirthdayGraph.degree[edge_as_list[1]] - 1)
+				# somehow, an edge with only 1 node sometimes gets to this point when running hep-th.
+				if len(edge_as_list) == 2:
+					already_removed.append(edge)
+					self.tot_wedges -= (self.BirthdayGraph.degree[edge_as_list[0]] - 1) + \
+									   (self.BirthdayGraph.degree[edge_as_list[1]] - 1)
 
-				try:
-					self.BirthdayGraph.remove_edge(tuple(edge_as_list))
-				except: # edge_res has duplicates; some edges are removed in the previous rounds
-					pass
-				for i in range(self.sw):
-					if self.wedge_res[i] == edge:
-						self.is_closed[i] = False
+					try:
+						self.BirthdayGraph.remove_edge(tuple(edge_as_list))
+					except: # edge_res has duplicates; some edges are removed in the previous rounds
+						pass
+					for i in range(self.sw):
+						if self.wedge_res[i] == edge:
+							self.is_closed[i] = False
 
 		self.BirthdayGraph.add_edge(next_edge[0], next_edge[1])
 		# update total wedges with new wedges formed by adding this edge
@@ -311,7 +315,7 @@ class DOULION:
 		return float(a3.trace())/6
 
 
-def analysis(res, ground_truth):
+def analysis(res, ground_truth, save_file, alg_name, data_name):
 	'''
 	v.1
 
@@ -322,6 +326,7 @@ def analysis(res, ground_truth):
 
 
 	fig, axes = plt.subplots(1, 2, figsize = (10, 5))
+	fig.suptitle("{} - {}".format(data_name, alg_name))
 
 	axes[0].plot([p for (p, cnt, t) in res], [cnt for (p, cnt, t) in res], '.-', color = 'k', label="simulation")
 	axes[0].plot([p for (p, cnt, t) in res], [ground_truth[0] * (p ** 3) for (p, cnt, t) in res], '.-', color = 'gray', label="estimate")
@@ -333,14 +338,14 @@ def analysis(res, ground_truth):
 	axes[1].plot([p for (p, cnt, t) in res], [t for (p, cnt, t) in res], '.-', color = 'k', label = "simulation")
 	axes[1].plot([p for (p, cnt, t) in res], [ground_truth[1] * (p ** 2) for (p, cnt, t) in res], '.-', color = 'gray', label= "estimate")
 	#
-	axes[1].set_title("Simulated vs Estimated running_time ")
+	axes[1].set_title("Simulated vs Estimated run time ")
 	axes[1].set_xlabel("p")
 	axes[1].set_ylabel("running time (sec.)")
 
 	for i in range(2):
 		axes[i].legend()
 
-	fig.savefig("./log/log_birthday_newest_modifiedsesw.png")
+	fig.savefig(save_file)#"./log/log_birthday_newest_modifiedsesw.png")
 
 
 	return
@@ -352,17 +357,20 @@ def load_hepth():
 
 def run_experiments(G, p_l, algs, trials, dataset_name):
 	result_dir = 'results/'+dataset_name
-	os.mkdir(result_dir)
+	# os.mkdir(result_dir)
 	for alg in algs:
 		os.mkdir(result_dir+"/"+alg)
 		res = [('trial', 'p', 'count', 'time')]
 		for p in p_l:
 			for trial in range(trials):
+				print("trial:{}, p:{}".format(trial, p))
 				counter = DOULION(G, p)
 				t = time.time()
 				cnt = counter.run(alg)  # ("node_iter")
+				print(cnt)
 				run_time = time.time() - t
 				res.append((trial, p, cnt, run_time))
+				print(run_time)
 		with open(result_dir+"/"+alg+'/result.txt', 'w') as f:
 			for item in res:
 				f.write("{}\n".format(item))
@@ -372,11 +380,11 @@ if __name__ == "__main__":
 
 	# setting
 	#G = nx.read_edgelist("facebook_combined.txt", delimiter = ' ', data = (('w', int),))
-	p_l = [0.1, 0.3, 0.5, 0.7, 1]
-	algs = ['node_iter', 'edge_iter']#, 'trace_exact']#, 'trace_est', 'birthday', 'eigen_est']
+	p_l = [1]#[0.3, 0.5, 0.7]
+	algs = ['trace_exact']#'trace_exact', #['trace_exact']#['node_iter', 'edge_iter']#, 'trace_exact']#, 'trace_est', 'birthday', 'eigen_est']
 
 	# following 2 lines for running experiments over hep-th-new
-	# G = load_hepth()
+	G = load_hepth()
 	run_experiments(G, p_l, algs, trials=5, dataset_name='hep_th')
 
 

@@ -3,7 +3,7 @@ from linear_py import analysis
 import matplotlib.pyplot as plt
 
 
-def analysis_with_errorbars(res, ground_truth, save_file):
+def analysis_with_errorbars(res, ground_truth, save_file, alg_name, data_name):
 	'''
 	v.1
 
@@ -11,6 +11,7 @@ def analysis_with_errorbars(res, ground_truth, save_file):
 	:ground_truth: (cnt, running_time)
 	'''
 	fig, axes = plt.subplots(1, 2, figsize = (10, 5))
+	fig.suptitle("{} - {}".format(data_name, alg_name))
 
 	axes[0].plot([p for (p, cnt, cnt_std, t, t_std) in res], [cnt for (p, cnt, cnt_std, t, t_std) in res], '.-', color = 'k', label="simulation")
 	axes[0].errorbar([p for (p, cnt, cnt_std, t, t_std) in res], [cnt for (p, cnt, cnt_std, t, t_std) in res], yerr=[cnt_std for (p, cnt, cnt_std, t, t_std) in res], linestyle='none')
@@ -33,7 +34,7 @@ def analysis_with_errorbars(res, ground_truth, save_file):
 
 	fig.savefig(save_file)
 
-def accuracy_speedup_dots(res, ground_truth, save_file):
+def accuracy_speedup_dots(res, ground_truth, save_file, alg_name, data_name):
 	'''
 	v.1
 
@@ -48,7 +49,7 @@ def accuracy_speedup_dots(res, ground_truth, save_file):
 		print(res_accuracy[i])
 		plt.annotate(p[i], (res_accuracy[i], res_speedup[i]))
 
-	plt.title("Accuracy vs Speedup")
+	plt.title("{} - {} Accuracy vs Speedup".format(data_name, alg_name))
 	plt.xlabel("Accuracy")
 	plt.ylabel("Speedup")
 
@@ -56,6 +57,8 @@ def accuracy_speedup_dots(res, ground_truth, save_file):
 
 
 def main():
+	alg_name='Node Iterator'
+	data_name='HEP-TH-NEW'
 	dataset = 'results/hep_th/'
 	alg = 'node_iter/'
 	file = dataset + alg + 'result.txt'
@@ -83,15 +86,15 @@ def main():
 	res = []
 	for p in [0.1, 0.3, 0.5, 0.7, 1.0]:
 		res.append((p, np.mean(p_count_dict[p]), np.mean(p_time_dict[p])))
-	accuracy_speedup_dots(res, (res[-1][1], res[-1][2]), dataset+alg+"acc_speed_res.png")
-	analysis(res, (res[-1][1], res[-1][2]), dataset+alg+"analysis_est_vs_sim.png")
+	accuracy_speedup_dots(res, (res[-1][1], res[-1][2]), dataset+alg+"acc_speed_res.png", alg_name, data_name)
+	analysis(res, (res[-1][1], res[-1][2]), dataset+alg+"analysis_est_vs_sim.png", alg_name, data_name)
 
 	# For if we want error bars / something with std
 	res=[]
 	for p in [0.1, 0.3, 0.5, 0.7, 1.0]:
 		res.append((p, np.mean(p_count_dict[p])/(p**3), np.std(p_count_dict[p])/(p**3), np.mean(p_time_dict[p]), np.std(p_time_dict[p])))
 
-	analysis_with_errorbars(res, (res[-1][1], res[-1][3]), dataset+alg+"result_web.png")
+	analysis_with_errorbars(res, (res[-1][1], res[-1][3]), dataset+alg+"result_web.png", alg_name, data_name)
 
 if __name__ == '__main__':
 	main()
