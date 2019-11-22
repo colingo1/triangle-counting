@@ -57,9 +57,9 @@ def accuracy_speedup_dots(res, ground_truth, save_file, alg_name, data_name):
 
 def main():
 	vis_sets = [
-		('Node Iterator', 'Epinions', 'results/epinions/', 'node_iter/'),
-		('Edge Iterator', 'Epinions', 'results/epinions/', 'edge_iter/'),
-		('Trace-Exact', 'Epinions', 'results/epinions/', 'trace_exact/'),
+		('Node Iterator', 'EAT_RS', 'results/EAT_RS/', 'node_iter/'),
+		('Edge Iterator', 'EAT_RS', 'results/EAT_RS/', 'edge_iter/'),
+		('Trace-Exact', 'EAT_RS', 'results/EAT_RS/', 'trace_exact/'),
 	]
 	for (alg_name, data_name, dataset, alg) in vis_sets:
 		file = dataset + alg + 'result.txt'
