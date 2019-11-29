@@ -35,15 +35,14 @@ class DOULION:
 		:param triangle_cnt_alg:
 			"node_iter",
 			"edge_iter".
+			"trace_exact",
 			"trace_est",
-			"wedge_sampling"
-
+			"birthday"
 		'''
 
 		for e in G.edges():
 			# toss a coin with success prob. p
 			if random.random() < self.p:
-				# G.edges[e]['w'] = 1/p
 				self.sampled_G.add_edge(e[0], e[1])
 			else:
 				pass
@@ -91,26 +90,21 @@ class DOULION:
 		for edge in self.sampled_G.edges:
 			n = edge[0]
 			m = edge[1]
-			nodeset_n = set([s for s in self.sampled_G.neighbors(n)])# if n < s and s < m])
-			nodeset_m = set([s for s in self.sampled_G.neighbors(m)])# if n < s and s < m])
+			nodeset_n = set([s for s in self.sampled_G.neighbors(n)])
+			nodeset_m = set([s for s in self.sampled_G.neighbors(m)])
 			num_triangles += len(nodeset_m.intersection(nodeset_n))
 
 		return num_triangles / 3
 
 	def birthday_paradox(self):
 		"""
-		implemented using http://delivery.acm.org/10.1145/2710000/2700395/a15-jha.pdf?ip=129.161.86.178&id=2700395&acc=ACTIVE%20SERVICE&key=7777116298C9657D%2EAF047EA360787914%2E4D4702B0C3E38B35%2E4D4702B0C3E38B35&__acm__=1573168257_e346bde5ea41699f6b4fc6f62572ca2a
+		implementation of "A space efficient streaming algorithm for estimating
+		transitivity and triangle counts using the birthday paradox"
 
 		:return:
 		"""
 
-		# algorithm 1: Streaming-Triangles (Se, Sw)
-
-		# wedges are tuples of two edges
-		# a wedge is a path of length 2.
-
-		print(len(self.sampled_G.edges))
-
+		#se and sw are parameters, 10,000 was used in the paper.
 
 		self.se = 10000
 		print(self.se)
@@ -118,13 +112,8 @@ class DOULION:
 		self.BirthdayGraph = nx.Graph() # using a secondary graph to do things involving reservoir edges
 
 		self.sw = 10000
-		print(self.sw)
-		# experiments in the paper set se and sw to 10K, probably need to find a good number to use
-		# se and sw should be based on sample_G
 
 		self.wedge_res = [None for i in range(self.sw)] # list to store reservoir sample of wedges
-		# maintains a uniform sample of the wedges created by the edge reservoir at any step of the process.
-		# (The wedge reservoir may include wedges whose edges are no longer in the edge reservoir.)
 
 
 		self.is_closed = [False for i in range(self.sw)] # list to store that a wedge has been detected to be closed
@@ -134,20 +123,21 @@ class DOULION:
 		self.t = 1
 		T = 0
 
-		# since this is an algorithm for streaming, maybe we should make edges we get from G be randomized.
-		edges = list(self.sampled_G.edges)#list(set(self.sampled_G.edges) - set(self.BirthdayGraph.edges))
+		# randomize ordering of edges
+		edges = list(self.sampled_G.edges)
 		random.shuffle(edges)
+
 		for et in edges:
+			# a couple datasets had an issue where edges didn't have 2 elements, workaround by ignoring any such case
 			if len(et) != 2:
 				pass
 			self.birthday_update(et)
 			p = self.is_closed.count(True) / len(self.is_closed) # p is fraction of wedges that are detected to be closed
 			kt = 3*p
-			#TODO: something is probably wrong with the estimate
-			#  possibly missing an extra step in the paper, or misinterpreting what t in algorithm 1 is
-			T = self.tot_wedges * (p*(self.t**2)) / (self.se * (self.se - 1)) # T is the number of triangles
+			# T is the number of triangles
+			T = self.tot_wedges * (p*(self.t**2)) / (self.se * (self.se - 1))
 
-			self.t += 1  # ? trials?
+			self.t += 1
 
 			if self.t % 500 == 0:
 				print(self.t) # trial
@@ -161,32 +151,30 @@ class DOULION:
 	def birthday_update(self, next_edge):
 		"""
 		part of birthday paradox alg
-		:param next_edge:
-		:return:
 		"""
+		# check if the new edge closes any wedge in the reservoir and update is_closed
 		next_edge_as_set = set(next_edge)
 		for	i in range(self.sw):
 			if self.wedge_res[i] == None:  # some slot might not be filled
 				continue
 			if self.wedge_res[i] == next_edge_as_set:
-				self.is_closed[i] = True  #
+				self.is_closed[i] = True
 
 		updated = False
 		removed_edges = []
 
 		x = random.random()
+		# success prob. of storing new edge in reservoir
 		if x <= (1 - (1 - 1/self.t)**self.se):
-		# for i in range(self.se):
-		# 	if x <= 1/self.t: #
+			# choose random index in reservoir list to replace
 			i = random.randint(0, self.se-1)
-			if self.edge_res[i] is not None: #
-				removed_edges.append(self.edge_res[i]) # some might be duplicated
+			if self.edge_res[i] is not None:
+				removed_edges.append(self.edge_res[i])
 			self.edge_res[i] = next_edge_as_set
 			updated = True
-#				break
 
 		if updated: # if any update to edge_res
-			# update tot wedges and get number of wedges involving et
+			# update total wedges and get number of wedges involving et
 			N_t = self.birthday_update_tot_wedges(next_edge, removed_edges) # tot_wedge updated
 			self.new_wedges = len(N_t)
 
@@ -196,7 +184,7 @@ class DOULION:
 					if x <= self.new_wedges / self.tot_wedges:
 						w = random.choice(N_t)
 						self.wedge_res[i] = w
-						self.is_closed[i] = False   # didn't check; (?)
+						self.is_closed[i] = False
 
 	def birthday_update_tot_wedges(self, next_edge, removed_edges):
 		"""
@@ -206,12 +194,12 @@ class DOULION:
 		next_edge_as_set = set(next_edge)
 
 		# fix the total wedges count
-		# print("here!")
 		already_removed = []
 		for edge in removed_edges:
 			if edge not in already_removed and edge not in self.edge_res:
 				edge_as_list = list(edge)
 				# somehow, an edge with only 1 node sometimes gets to this point when running hep-th.
+				# avoid error using try/except
 				if len(edge_as_list) == 2:
 					already_removed.append(edge)
 					self.tot_wedges -= (self.BirthdayGraph.degree[edge_as_list[0]] - 1) + \
@@ -296,8 +284,8 @@ class DOULION:
 	def trace_est(self):
 		gamma = 3
 		# For collaboration/citations graphs γ = 1 − 2
-		#seems adequate, for social networks γ = 3 and for large
-		#web graphs/communications networks γ = 4.
+		# seems adequate, for social networks γ = 3 and for large
+		# web graphs/communications networks γ = 4.
 		# - section 6.2 (https://pdfs.semanticscholar.org/2471/6ee2bf34934e8eb70a7aca4ffa38b544ca81.pdf)
 		adjacency_matrix = nx.to_numpy_matrix(self.sampled_G)
 		n = len(adjacency_matrix)
@@ -320,13 +308,11 @@ class DOULION:
 
 def analysis(res, ground_truth, save_file, alg_name, data_name):
 	'''
-	v.1
+	v.1 visualization of results
 
 	:param res: [(p, cnt, running_time), ...]
 	:ground_truth: (cnt, running_time)
 	'''
-
-
 
 	fig, axes = plt.subplots(1, 2, figsize = (10, 5))
 	fig.suptitle("{} - {}".format(data_name, alg_name))
@@ -348,19 +334,33 @@ def analysis(res, ground_truth, save_file, alg_name, data_name):
 	for i in range(2):
 		axes[i].legend()
 
-	fig.savefig(save_file)#"./log/log_birthday_newest_modifiedsesw.png")
-
+	fig.savefig(save_file)
 
 	return
 
+
 def load_hepth():
+	"""
+	Load HEP-th dataset. other MATLAB matrix data can be loaded similarly
+	:return:
+	"""
 	raw_dat = loadmat('data/HEP-th-new.mat')
 	mat_dat = scipy.sparse.csr_matrix(raw_dat['Problem'][0][0][2])
 	return nx.from_scipy_sparse_matrix(mat_dat)
 
+
 def run_experiments(G, p_l, algs, trials, dataset_name):
+	"""
+	Run experiment on a loaded graph for multiple algorithms and p values.
+
+	:param G: graph to count triangles for
+	:param p_l: list of probabilities to run experiments for
+	:param algs: list of strings used to choose the algorithm to run
+	:param trials: number of trials to repeat the algorithm for
+	:param dataset_name: name of the dataset, used for saving results
+	"""
 	result_dir = 'results/'+dataset_name
-	# os.mkdir(result_dir)
+	os.mkdir(result_dir)
 	for alg in algs:
 		os.mkdir(result_dir+"/"+alg)
 		res = [('trial', 'p', 'count', 'time')]
@@ -369,7 +369,7 @@ def run_experiments(G, p_l, algs, trials, dataset_name):
 				print("trial:{}, p:{}".format(trial, p))
 				counter = DOULION(G, p)
 				t = time.time()
-				cnt = counter.run(alg)  # ("node_iter")
+				cnt = counter.run(alg)
 				print(cnt)
 				run_time = time.time() - t
 				res.append((trial, p, cnt, run_time))
@@ -381,29 +381,14 @@ def run_experiments(G, p_l, algs, trials, dataset_name):
 
 if __name__ == "__main__":
 
-	# setting
-	#G = nx.read_edgelist("facebook_combined.txt", delimiter = ' ', data = (('w', int),))
+	# load dataset.
+	# G = nx.read_edgelist("facebook_combined.txt", delimiter = ' ', data = (('w', int),))
+	G = load_hepth()
 
+	# p values and algorithm choices to run experiment
 	p_l = [0.1, 0.3, 0.5, 0.7, 1]
-	algs = ['trace_est']#, 'trace_est', 'birthday', 'eigen_est']
+	algs = ['node_iter', 'edge_iter', 'trace_exact']
 
-	# following 2 lines for running experiments over hep-th-new
-	G = nx.fast_gnp_random_graph(25000,0.001)
-	run_experiments(G, p_l, algs, trials=1, dataset_name='random_np')
-
-
-	# res = []
-	# for p in p_l:
-	# 	counter = DOULION(G, p)
-	# 	t = time.time()
-	# 	cnt = counter.run("node_iter")#("node_iter")
-	# 	run_time = time.time() - t
-	# 	res.append((p, cnt, run_time))
-	# 	print("p: ", p, ", triangle cnt: ", cnt)
-	# 	print("run time: ", run_time)
-	#
-	# analysis(res, (res[-1][1], res[-1][2]))
-
-	# TODO: clean up to make running experiments straightforward
-	# note: use fast_gnp_random_graph for testing on ER graph
+	# run experiment. currently set up to run on HEP-th dataset
+	run_experiments(G, p_l, algs, trials=5, dataset_name='hep_th')
 
