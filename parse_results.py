@@ -57,22 +57,10 @@ def accuracy_speedup_dots(res, ground_truth, save_file, alg_name, data_name):
 
 def main():
 	vis_sets = [
-		('Node Iterator', 'Epinions', 'results/epinions/', 'node_iter/'),
-		('Edge Iterator', 'Epinions', 'results/epinions/', 'edge_iter/'),
-		('Trace-Exact', 'Epinions', 'results/epinions/', 'trace_exact/'),
-		#
-		('Node Iterator', 'Random ER', 'results/random_np/', 'node_iter/'),
-		('Edge Iterator', 'Random ER', 'results/random_np/', 'edge_iter/'),
-		('Trace-Exact', 'Random ER', 'results/random_np/', 'trace_exact/'),
-		#
-		('Node Iterator', 'HEP-th-new', 'results/hep_th/', 'node_iter/'),
-		('Edge Iterator', 'HEP-th-new', 'results/hep_th/', 'edge_iter/'),
-		('Trace-Exact', 'HEP-th-new', 'results/hep_th/', 'trace_exact/'),		
-		('Birthday Paradox', 'HEP-th-new', 'results/hep_th/', 'birthday/'),
-		('Trace-Est', 'HEP-th-new', 'results/hep_th/', 'trace_est/'),
-
+		('Node Iterator', 'EAT_RS', 'results/EAT_RS/', 'node_iter/'),
+		('Edge Iterator', 'EAT_RS', 'results/EAT_RS/', 'edge_iter/'),
+		('Trace-Exact', 'EAT_RS', 'results/EAT_RS/', 'trace_exact/'),
 	]
-
 	for (alg_name, data_name, dataset, alg) in vis_sets:
 		file = dataset + alg + 'result.txt'
 		# savefile = dataset+alg+"result.png"
