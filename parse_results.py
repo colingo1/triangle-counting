@@ -41,8 +41,9 @@ def accuracy_speedup_dots(res, ground_truth, save_file, alg_name, data_name):
 	res_accuracy = [1-np.abs((cnt/(p**3)/ground_truth[0] - 1)) for (p, cnt, t) in res]
 	res_speedup = [ground_truth[1]/t for (p, cnt, t) in res]
 
+	plt.rcParams.update({'font.size': 13})
 	fig, ax = plt.subplots(1, 1)
-	fig.suptitle("{} - {} Accuracy vs Speedup".format(data_name, alg_name))
+	fig.suptitle("{} - {}".format(data_name, alg_name))
 	ax.plot(res_accuracy, res_speedup, 'ro')
 	p = [0.1, 0.3, 0.5, 0.7, 1.0]
 	for i in range(5):
@@ -51,15 +52,21 @@ def accuracy_speedup_dots(res, ground_truth, save_file, alg_name, data_name):
 
 	ax.set_xlabel("Accuracy")
 	ax.set_ylabel("Speedup")
+	plt.locator_params(axis='x', nbins=4)
+	# plt.xticks([0.8, 0.9, 0.95, 1.0])
+	plt.locator_params(axis='y', nbins=7)
+	# ax.set_xlim([0.98, 1.0])
+	#ax.set_ylim([0, 120])
+
 
 	fig.savefig(save_file)
 
 
 def main():
 	vis_sets = [
-		('Node Iterator', 'EAT_RS', 'results/EAT_RS/', 'node_iter/'),
-		('Edge Iterator', 'EAT_RS', 'results/EAT_RS/', 'edge_iter/'),
-		('Trace-Exact', 'EAT_RS', 'results/EAT_RS/', 'trace_exact/'),
+		('Trace-Exact', 'Epinions', 'results/epinions/', 'trace_exact/'),
+		# ('Edge Iterator', 'EAT_RS', 'results/EAT_RS/', 'edge_iter/'),
+		# ('Trace-Exact', 'EAT_RS', 'results/EAT_RS/', 'trace_exact/'),
 	]
 	for (alg_name, data_name, dataset, alg) in vis_sets:
 		file = dataset + alg + 'result.txt'
