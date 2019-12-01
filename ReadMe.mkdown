@@ -3,14 +3,10 @@
 Languages:
 
 Python >3.5
-Scala ?
 
 Tools and Packages:
 
 * networkx 2.4 https://networkx.github.io/ (Python 3.5, 3.6, 3.7)
-
-* Graphx http://spark.apache.org/graphx/ (Spark 2.4.4, API: Scala (doc: http://spark.apache.org/docs/latest/api/scala/index.html#org.apache.spark.package) )
-
 
 # Baselines
 
@@ -54,35 +50,6 @@ This section lists the papers we need for this project:
 * http://chbrown.github.io/kdd-2013-usb/kdd/p589.pdf basically the same paper, but the algorithms are written out slightly differently (most notably, first paper made it seem like every edge could be added to edge_res many times, but this paper makes it clear that it is only added once). 
 Current implementation of the algorithm also updates is_closed whenever an edge is removed, which isn't explicitly mentioned in either paper, but empirically this has given the best results.
 
-
-# Schedule
-
-Project page: https://www.cs.rpi.edu/~gittea/teaching/fall2019/project.html
-
-week1 80% code (linear + Spark)
-
-week2 on small dataset
-
-week3 on large dataset
-
----
-
-*DEADLINE*
-
-(send the email after the previous meeting, Nov. 14th)
-- Nov. 22nd discussion (Friday. 4:30~6:00 PM)
-
----
-
-# Todos:
-
-* On Facebook, get error bar and etc. for multiple trials (Manqing)
-* Work on Spark-Graphx parallelization (Colin, Manqing)
-* Birthday Paradox implementation, Python (Sola)
-* Trace Estimation implementation, Python (Colin)
-* Wedge Sampling, Python (Rufeng)
-* Test on 3-4 small datasets (...pending...)
-* Run experiments on node iterator, edge iterator, trace exact to prepare for meeting
  
 # Datasets:
 
