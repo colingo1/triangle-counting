@@ -30,7 +30,7 @@ Tools and Packages:
 
 This section lists the papers we used for the implementation of this project:
 
-## DOULIN
+## DOULION
 
 * https://dl.acm.org/citation.cfm?id=1557111 "DOULION: Counting Triangles in Massive Graphs with a Coin"
 
