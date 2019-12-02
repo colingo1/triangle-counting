@@ -1,28 +1,34 @@
 # Language and Environment
 
-Languages:
+Language:
 
-Python >3.5
+* Python >3.5
 
 Tools and Packages:
 
 * networkx 2.4 https://networkx.github.io/ (Python 3.5, 3.6, 3.7)
 
-# Baselines
+# To run the experiments
+
+* Use linear_py.py's main function
+
+* Load the appropriate dataset, select p values and algorithms to run experiments on
+
+* Visualizations can be made using parse_results.py
+
+# Implemented Algorithms
 
 1. node/edge iterator
 
-2. wedge sampling
+2. "Counting Triangles in Large Graphs using Randomized Matrix Trace Estimation"
 
-3. "Counting Triangles in Large Graphs using Randomized Matrix Trace Estimation"
+3. "A space efficient streaming algorithm for estimating transitivity and triangle counts using the birthday paradox" 
 
-4. "A space efficient streaming algorithm for estimating transitivity and triangle counts using the birthday paradox" 
-
-5. ...
+4. "Spectral Counting of Triangles via Element-Wise Sparsification and Triangle-Based Link Recommendation"
 
 # Papers
 
-This section lists the papers we need for this project:
+This section lists the papers we used for the implementation of this project:
 
 ## DOULIN
 
@@ -48,7 +54,6 @@ This section lists the papers we need for this project:
 
 * https://arxiv.org/pdf/1212.2264.pdf "A space efficient streaming algorithm for estimating transitivity and triangle counts using the birthday paradox" 
 * http://chbrown.github.io/kdd-2013-usb/kdd/p589.pdf basically the same paper, but the algorithms are written out slightly differently (most notably, first paper made it seem like every edge could be added to edge_res many times, but this paper makes it clear that it is only added once). 
-Current implementation of the algorithm also updates is_closed whenever an edge is removed, which isn't explicitly mentioned in either paper, but empirically this has given the best results.
 
  
 # Datasets:
@@ -57,46 +62,4 @@ Current implementation of the algorithm also updates is_closed whenever an edge 
 * https://sparse.tamu.edu/SNAP/soc-Epinions1  Epinions network, a product review social network N = 75,877, E = 405,740 (*this social network could be changed to facebook if too expensive to compute*)
 * https://sparse.tamu.edu/Pajek/EAT_RS A language network, N = 23,219, E = 304,937
 * ER graph of (N, p) = (,)
-
-
-# RESULT
-
-(RAW RUNNING RESULT)
-
-## Example of one piece of result
-
-* (for deterministic alg.)
-
-|dataset   |  N | E  | Deterministic - node iterator   | 
-|---|---|---|---|
-| facebook  |  4039 | 88234| (p = 0.1, accuracy=, speedup=)  |
-| HEP-th-new  |  27770 | 352324 | experiments run, will input here later  |
-
-|dataset   |  N | E  | Deterministic - edge iterator   | 
-|---|---|---|---|
-| HEP-th-new  |  27770 | 352324 | experiments run, will input here later  |
-
-|dataset   |  N | E  | Deterministic - trace exact   | 
-|---|---|---|---|
-
-* (for randomized alg.)
-
-|dataset   |  N | E  |  Randomized Algorithms. - trace est. |
-|---|---|---|---|
-| facebook  |  4039 | 88234|  (chained? = no, [alg. specific params.], p = 0.1, accuracy=, speedup=) |
-
-p = 0.1, 0.3, 0.5, 0.7, 1 (ground truth)  
-
-(for randomized algorithms) chained? = yes, no *(If chained to DOULIN)*  
-
-dataset \* 4
-
-deterministic * 3 (node iterator, edge iterator, trace) + randomized algorithms * 4 (simple wedge sampling, birthday paradox wedge sampling, trace estimation, eigenvalue estimation) = 7 algorithms
-
-## Altogether --
-
-"no. of datasets" \* ("no. of p sparsification" \* "no. of trials" \* ("no. of deterministic alg.s" + 2 * "no. of randomized alg.s"))
-= 4 \* (5 \* 5 \* ( 3 + 2 \* 4)) = 1100  (**this number is subject to change**)
-
-
 
