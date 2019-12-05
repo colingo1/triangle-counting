@@ -16,6 +16,10 @@ Tools and Packages:
 
 * Visualizations can be made using parse_results.py
 
+# Presentatoin link
+
+* https://docs.google.com/presentation/d/1joTlZ1P9bB1sMlzlv6Jaa_d7TbPMRakLyyJCgDwfsPA/edit?usp=sharing
+
 # Implemented Algorithms
 
 1. node/edge iterator
